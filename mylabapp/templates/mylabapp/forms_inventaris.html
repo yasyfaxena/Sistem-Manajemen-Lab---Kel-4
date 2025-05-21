@@ -1,0 +1,33 @@
+{% if form.errors %}
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <strong>Terjadi kesalahan:</strong>
+    <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ judul }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans p-8">
+    <h1 class="text-2xl font-bold mb-4">{{ judul }}</h1>
+    <form method="post" class="max-w-md bg-white p-6 rounded shadow">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="px-4 py-2 bg-black text-white rounded">Simpan</button>
+        <a href="{% url 'inventaris' %}" class="ml-4 text-gray-600 hover:underline">Batal</a>
+    </form>
+</body>
+</html>

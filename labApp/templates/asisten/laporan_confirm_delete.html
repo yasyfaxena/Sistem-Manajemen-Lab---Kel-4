@@ -1,0 +1,37 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Hapus Laporan - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trash-alt me-2"></i> Hapus Laporan
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Apakah Anda yakin ingin menghapus laporan kerusakan berikut?</p>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item"><strong>Perangkat:</strong> {{ laporan.perangkat }}</li>
+                        <li class="list-group-item"><strong>Ruangan:</strong> {{ laporan.ruangan }}</li>
+                        <li class="list-group-item"><strong>Tanggal Laporan:</strong> {{ laporan.tanggal_laporan|date:"d/m/Y H:i" }}</li>
+                    </ul>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Tindakan ini tidak dapat dibatalkan.
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'labApp:laporan_list' %}" class="btn btn-outline-secondary">Batal</a>
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

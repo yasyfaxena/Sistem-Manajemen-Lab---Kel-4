@@ -1,0 +1,76 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}{{ title }} - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.praktikum.id_for_label }}" class="form-label">Praktikum</label>
+                        {{ form.praktikum }}
+                        {% if form.praktikum.errors %}
+                            <div class="text-danger">{{ form.praktikum.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.hari.id_for_label }}" class="form-label">Hari</label>
+                            {{ form.hari }}
+                            {% if form.hari.errors %}
+                                <div class="text-danger">{{ form.hari.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.ruangan.id_for_label }}" class="form-label">Ruangan</label>
+                            {{ form.ruangan }}
+                            {% if form.ruangan.errors %}
+                                <div class="text-danger">{{ form.ruangan.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.waktu_mulai.id_for_label }}" class="form-label">Waktu Mulai</label>
+                            {{ form.waktu_mulai }}
+                            {% if form.waktu_mulai.errors %}
+                                <div class="text-danger">{{ form.waktu_mulai.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.waktu_selesai.id_for_label }}" class="form-label">Waktu Selesai</label>
+                            {{ form.waktu_selesai }}
+                            {% if form.waktu_selesai.errors %}
+                                <div class="text-danger">{{ form.waktu_selesai.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.asisten.id_for_label }}" class="form-label">Asisten</label>
+                        {{ form.asisten }}
+                        <div class="form-text">Tahan Ctrl untuk memilih lebih dari satu asisten.</div>
+                        {% if form.asisten.errors %}
+                            <div class="text-danger">{{ form.asisten.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'labApp:jadwal_list' %}" class="btn btn-outline-secondary">Batal</a>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

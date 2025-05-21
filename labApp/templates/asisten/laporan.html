@@ -1,0 +1,78 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Laporan Kerusakan - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Daftar Laporan Kerusakan</h2>
+    <a href="{% url 'labApp:laporan_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Buat Laporan Baru
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if laporan_list %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Perangkat</th>
+                            <th>Ruangan</th>
+                            <th>Deskripsi</th>
+                            <th>Tanggal Laporan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for laporan in laporan_list %}
+                        <tr>
+                            <td>{{ laporan.perangkat }}</td>
+                            <td>{{ laporan.ruangan }}</td>
+                            <td>{{ laporan.deskripsi }}</td>
+                            <td>{{ laporan.tanggal_laporan|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if laporan.status == 'pending' %}
+                                    <span class="badge bg-warning">Menunggu</span>
+                                {% elif laporan.status == 'proses' %}
+                                    <span class="badge bg-info">Diproses</span>
+                                {% else %}
+                                    <span class="badge bg-success">Selesai</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if laporan.status == 'pending' %}
+                                        <a href="{% url 'labApp:laporan_update' laporan.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'labApp:laporan_delete' laporan.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">Belum ada laporan kerusakan.</p>
+                <a href="{% url 'labApp:laporan_create' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-1"></i> Buat Laporan Baru
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

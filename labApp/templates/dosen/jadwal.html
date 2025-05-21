@@ -1,0 +1,67 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Jadwal Praktikum - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Jadwal Praktikum</h2>
+    <a href="{% url 'labApp:jadwal_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Tambah Jadwal
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if jadwal_list %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Praktikum</th>
+                            <th>Hari</th>
+                            <th>Waktu</th>
+                            <th>Ruangan</th>
+                            <th>Asisten</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jadwal in jadwal_list %}
+                        <tr>
+                            <td>{{ jadwal.praktikum }}</td>
+                            <td>{{ jadwal.get_hari_display }}</td>
+                            <td>{{ jadwal.waktu_mulai|time:"H:i" }} - {{ jadwal.waktu_selesai|time:"H:i" }}</td>
+                            <td>{{ jadwal.ruangan }}</td>
+                            <td>
+                                {% for asisten in jadwal.asisten.all %}
+                                    <span class="badge bg-light text-dark">{{ asisten.get_full_name|default:asisten.username }}</span>
+                                {% empty %}
+                                    <span class="text-muted">-</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'labApp:jadwal_update' jadwal.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'labApp:jadwal_delete' jadwal.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">Belum ada jadwal praktikum.</p>
+                <a href="{% url 'labApp:jadwal_create' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-1"></i> Tambah Jadwal
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

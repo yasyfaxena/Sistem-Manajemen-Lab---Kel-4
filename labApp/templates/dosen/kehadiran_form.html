@@ -1,0 +1,206 @@
+{% extends 'labApp/base.html' %}
+{% load static %}
+
+{% block title %}Form Kehadiran - Manajemen Laboratorium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kehadiran-header {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    .kehadiran-info {
+        margin-bottom: 0;
+    }
+    .kehadiran-table th {
+        background-color: #f8f9fa;
+    }
+    .kehadiran-row:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    .kehadiran-row.hadir {
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+    .kehadiran-row.tidak-hadir {
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Input Kehadiran Mahasiswa</h2>
+        <a href="{% url 'labApp:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <!-- Form Filter -->
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ filter_form.jadwal.label_tag }}
+                        {{ filter_form.jadwal }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ filter_form.tanggal.label_tag }}
+                        {{ filter_form.tanggal }}
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {% if show_formset %}
+                <form method="post" id="kehadiranForm">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>NIM</th>
+                                    <th>Nama</th>
+                                    <th>Hadir</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in formset %}
+                                    <tr class="kehadiran-row">
+                                        <td>{{ form.initial.nim_mahasiswa }}</td>
+                                        <td>{{ form.initial.nama_mahasiswa }}</td>
+                                        <td>
+                                            {{ form.hadir }}
+                                            {{ form.mahasiswa_id }}
+                                        </td>
+                                        <td>{{ form.keterangan }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-info me-2" id="selectAll">
+                            <i class="fas fa-check-square me-1"></i> Pilih Semua
+                        </button>
+                        <button type="button" class="btn btn-warning me-2" id="deselectAll">
+                            <i class="fas fa-square me-1"></i> Hapus Pilihan
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-1"></i> Simpan Kehadiran
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-info">
+                    Silakan pilih jadwal dan tanggal untuk menampilkan form kehadiran.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// console.log('JavaScript block loaded!'); 
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired.');
+
+    // Fungsi untuk mengupdate class row berdasarkan checkbox
+    function updateRowClass(row) {
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        if (checkbox.checked) {
+            row.classList.add('table-success');
+            row.classList.remove('table-danger');
+        } else {
+            row.classList.add('table-danger');
+            row.classList.remove('table-success');
+        }
+    }
+
+    // Update class untuk semua row
+    document.querySelectorAll('.kehadiran-row').forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        updateRowClass(row);
+        
+        checkbox.addEventListener('change', function() {
+            updateRowClass(row);
+        });
+    });
+
+    // Tombol Pilih Semua
+    document.getElementById('selectAll').addEventListener('click', function() {
+        document.querySelectorAll('.kehadiran-row input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = true;
+            updateRowClass(checkbox.closest('tr'));
+        });
+    });
+
+    // Tombol Hapus Pilihan
+    document.getElementById('deselectAll').addEventListener('click', function() {
+        document.querySelectorAll('.kehadiran-row input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+            updateRowClass(checkbox.closest('tr'));
+        });
+    });
+
+    // Handle form submission
+    const kehadiranForm = document.getElementById('kehadiranForm');
+    if (kehadiranForm) {
+        console.log('Form with ID kehadiranForm found.');
+        kehadiranForm.addEventListener('submit', function(e) {
+            console.log('Submit event listener triggered IMMEDIATELY.'); // Added immediate log
+            e.preventDefault(); 
+            console.log('Form submit event triggered AFTER preventDefault.'); // Added log after preventDefault
+            
+            const formData = new FormData(this);
+            console.log('Form data:', Object.fromEntries(formData));
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                console.log('Fetch response received:', response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            })
+            .then(text => {
+                if (text) {
+                    console.log('Response text:', text);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+        });
+    } else {
+        console.error('Form with ID kehadiranForm not found!');
+    }
+});
+</script>
+{% endblock %}
+

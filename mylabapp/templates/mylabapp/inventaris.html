@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Perangkat & Inventaris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-300 text-black p-4">
+          
+            <nav class="space-y-4">
+                <a href="{% url 'mylabapp:dashboard' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🏠</span><span>Home</span>
+                </a>
+                <a href="{% url 'mylabapp:data_praktikum' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>📋</span><span>Data Praktikum</span>
+                </a>
+                <a href="{% url 'mylabapp:inventaris' %}" class="flex items-center space-x-2 px-2 py-2 bg-white rounded font-semibold shadow">
+                    <span>🖊️</span><span>Perangkat Inventaris</span>
+                </a>
+                <a href="{% url 'mylabapp:penanganan_kerusakan' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🛠️</span><span>Penanganan Kerusakan</span>
+                </a>
+                <a href="{% url 'mylabapp:laporan' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🕒</span><span>Riwayat Perbaikan</span>
+                </a>
+                <a href="#" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-red-200 text-red-600 mt-6">
+                    <span>↩️</span><span>Keluar</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h1 class="text-2xl font-bold mb-4">Perangkat & Inventaris</h1>
+
+            <!-- Hidden URL Base -->
+            <div id="editUrlBase" data-url="{% url 'mylabapp:edit_inventaris' 0 %}" style="display: none;"></div>
+
+            <!-- Search + Add -->
+            <div class="flex space-x-2 mb-4">
+                <form method="get" action="{% url 'mylabapp:inventaris' %}" class="flex space-x-2 w-full">
+                    <input name="q" type="text" placeholder="Cari Perangkat..." class="w-1/3 px-4 py-2 border rounded bg-gray-100">
+                    <button type="submit" class="px-4 py-2 bg-gray-300 rounded">🔍</button>
+                </form>
+                <button onclick="openModal()" class="px-4 py-2 bg-black text-white rounded">➕</button>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white shadow rounded overflow-auto">
+                <table class="min-w-full text-left">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="px-4 py-2">No</th>
+                            <th class="px-4 py-2">Nama</th>
+                            <th class="px-4 py-2">Kondisi</th>
+                            <th class="px-4 py-2">Lokasi</th>
+                            <th class="px-4 py-2">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr class="border-t">
+                            <td class="px-4 py-2">{{ forloop.counter }}</td>
+                            <td class="px-4 py-2">{{ item.nama }}</td>
+                            <td class="px-4 py-2">{{ item.kondisi }}</td>
+                            <td class="px-4 py-2">{{ item.lokasi }}</td>
+                            <td class="px-4 py-2 space-x-2">
+                                <button onclick="openEditModal('{{ item.id }}', '{{ item.nama }}', '{{ item.kondisi }}', '{{ item.lokasi }}')" class="text-blue-500">✏️</button>
+                                <a href="{% url 'mylabapp:hapus_inventaris' item.id %}" class="text-red-500">🗑️</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="px-4 py-2 text-center">Tidak ada data</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Tambah -->
+    <div id="modalForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded shadow-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Tambah Perangkat</h2>
+            <form method="post" action="{% url 'mylabapp:tambah_inventaris' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="block mb-1">Nama</label>
+                    <input name="nama" type="text" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1">Kondisi</label>
+                    <select name="kondisi" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak">Rusak</option>
+                        <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-1">Lokasi</label>
+                    <input name="lokasi" type="text" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-black text-white rounded">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div id="modalEditForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded shadow-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Edit Perangkat</h2>
+            <form id="editForm" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="block mb-1">Nama</label>
+                    <input id="editNama" name="nama" type="text" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1">Kondisi</label>
+                    <select id="editKondisi" name="kondisi" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak">Rusak</option>
+                        <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-1">Lokasi</label>
+                    <input id="editLokasi" name="lokasi" type="text" class="w-full border rounded px-3 py-2 bg-gray-100" required>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-black text-white rounded">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        function openModal() {
+            document.getElementById('modalForm').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalForm').classList.add('hidden');
+        }
+
+        function openEditModal(id, nama, kondisi, lokasi) {
+            document.getElementById('editNama').value = nama;
+            document.getElementById('editKondisi').value = kondisi;
+            document.getElementById('editLokasi').value = lokasi;
+            const urlBase = document.getElementById('editUrlBase').dataset.url;
+            document.getElementById('editForm').action = urlBase.replace('0', id);
+            document.getElementById('modalEditForm').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('modalEditForm').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

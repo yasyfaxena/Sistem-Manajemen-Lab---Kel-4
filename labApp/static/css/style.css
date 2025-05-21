@@ -1,0 +1,192 @@
+:root {
+    --color-gray: #6c757d;
+    --color-baby-blue: #89CFF0;
+    --color-light-blue: #B6D0E2;
+    --color-white: #ffffff;
+    --color-light-gray: #f8f9fa;
+    --color-dark-gray: #343a40;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-light-gray);
+    color: var(--color-dark-gray);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: var(--color-baby-blue);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--color-white);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--color-white);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+    padding: 1rem 1.5rem;
+}
+
+.card-header.bg-primary, .card-header.bg-danger {
+    color: var(--color-white);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-baby-blue);
+    border-color: var(--color-baby-blue);
+}
+
+.btn-primary:hover {
+    background-color: #6BAFD9;
+    border-color: #6BAFD9;
+}
+
+.btn-outline-primary {
+    color: var(--color-baby-blue);
+    border-color: var(--color-baby-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--color-baby-blue);
+    border-color: var(--color-baby-blue);
+}
+
+/* Form Styling */
+.form-control, .form-select {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--color-baby-blue);
+    box-shadow: 0 0 0 0.25rem rgba(137, 207, 240, 0.25);
+}
+
+/* Table Styling */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table th {
+    background-color: var(--color-light-gray);
+    border-bottom: 2px solid var(--color-light-blue);
+    font-weight: 600;
+}
+
+.table td, .table th {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(137, 207, 240, 0.05);
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 4px;
+}
+
+/* Footer Styling */
+.footer {
+    margin-top: auto;
+    background-color: var(--color-white);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 0;
+}
+
+/* Login and Register Forms */
+.login-form, .register-form {
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-header, .card-body {
+        padding: 1rem;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-baby-blue);
+}

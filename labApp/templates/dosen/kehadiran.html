@@ -1,0 +1,86 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Kehadiran Praktikum - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Kehadiran Praktikum</h2>
+    <a href="{% url 'labApp:kehadiran_form' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Input Kehadiran
+    </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filter</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <label for="jadwal" class="form-label">Jadwal</label>
+                <select name="jadwal" id="jadwal" class="form-select">
+                    <option value="">-- Pilih Jadwal --</option>
+                    {% for jadwal in jadwal_list %}
+                        <option value="{{ jadwal.id }}" {% if selected_jadwal == jadwal.id|stringformat:"i" %}selected{% endif %}>
+                            {{ jadwal.praktikum }} - {{ jadwal.get_hari_display }} ({{ jadwal.waktu_mulai|time:"H:i" }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="tanggal" class="form-label">Tanggal</label>
+                <input type="date" name="tanggal" id="tanggal" class="form-control" value="{{ selected_tanggal }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if kehadiran_list %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>NIM</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kehadiran in kehadiran_list %}
+                        <tr>
+                            <td>{{ kehadiran.mahasiswa.nim }}</td>
+                            <td>{{ kehadiran.mahasiswa.nama }}</td>
+                            <td>
+                                {% if kehadiran.hadir %}
+                                    <span class="badge bg-success">Hadir</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Tidak Hadir</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ kehadiran.keterangan|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                {% if selected_jadwal %}
+                    <p class="text-muted mb-0">Belum ada data kehadiran untuk jadwal dan tanggal yang dipilih.</p>
+                {% else %}
+                    <p class="text-muted mb-0">Silahkan pilih jadwal dan tanggal untuk melihat data kehadiran.</p>
+                {% endif %}
+                <a href="{% url 'labApp:kehadiran_form' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-1"></i> Input Kehadiran
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

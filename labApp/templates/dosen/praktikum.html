@@ -1,0 +1,69 @@
+{% extends 'labApp/base.html' %} {% block title %}Daftar Praktikum - Manajemen
+Laboratorium{% endblock %} {% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Daftar Praktikum</h2>
+    <a href="{% url 'labApp:praktikum_create' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-1"></i> Tambah Praktikum
+    </a>
+  </div>
+
+  <!-- {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %} -->
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if praktikum_list %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Kode</th>
+              <th>Nama</th>
+              <th>Deskripsi</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for praktikum in praktikum_list %}
+            <tr>
+              <td>{{ praktikum.kode }}</td>
+              <td>{{ praktikum.nama }}</td>
+              <td>{{ praktikum.deskripsi|truncatechars:50 }}</td>
+              <td class="text-center">
+                <div class="btn-group" role="group">
+                  <a
+                    href="{% url 'labApp:praktikum_update' praktikum.id %}"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a
+                    href="{% url 'labApp:praktikum_delete' praktikum.id %}"
+                    class="btn btn-sm btn-outline-danger"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-info mb-0">
+        <i class="fas fa-info-circle me-2"></i> Belum ada data praktikum.
+        Silakan tambahkan praktikum baru.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

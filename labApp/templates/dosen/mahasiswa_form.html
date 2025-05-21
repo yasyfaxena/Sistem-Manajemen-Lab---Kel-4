@@ -1,0 +1,265 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}{{ title }} - Manajemen Laboratorium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .jadwal-item {
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+    .jadwal-item:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+        border-left-color: #007bff;
+    }
+    .jadwal-item.selected {
+        background-color: rgba(0, 123, 255, 0.1);
+        border-left-color: #007bff;
+    }
+    .jadwal-checkbox-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    .jadwal-group {
+        margin-bottom: 1.5rem;
+    }
+    .jadwal-group-title {
+        background-color: #f8f9fa;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    .jadwal-filter-section {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    .jadwal-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .jadwal-time {
+        font-weight: 500;
+    }
+    .jadwal-details {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .jadwal-dosen {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    .form-section-title {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ title }}</h2>
+        <a href="{% url 'labApp:mahasiswa_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h5 class="form-section-title">Informasi Mahasiswa</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nim.id_for_label }}" class="form-label">NIM</label>
+                            {{ form.nim }}
+                            {% if form.nim.errors %}
+                                <div class="text-danger">{{ form.nim.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nama.id_for_label }}" class="form-label">Nama Lengkap</label>
+                            {{ form.nama }}
+                            {% if form.nama.errors %}
+                                <div class="text-danger">{{ form.nama.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h5 class="form-section-title">Jadwal Praktikum</h5>
+                    
+                    <div class="jadwal-filter-section">
+                        <div class="row">
+                            <div class="col-md-5 mb-3 mb-md-0">
+                                <label for="{{ form.praktikum_filter.id_for_label }}" class="form-label">Filter Praktikum</label>
+                                {{ form.praktikum_filter }}
+                            </div>
+                            <div class="col-md-5 mb-3 mb-md-0">
+                                <label for="{{ form.hari_filter.id_for_label }}" class="form-label">Filter Hari</label>
+                                {{ form.hari_filter }}
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" id="reset-filter" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-sync-alt me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            {% if form.jadwal.field.queryset %}
+                                <div id="jadwal-container">
+                                    {% regroup form.jadwal.field.queryset by praktikum as praktikum_list %}
+                                    {% for praktikum_group in praktikum_list %}
+                                        <div class="jadwal-group" data-praktikum-id="{{ praktikum_group.grouper.id }}">
+                                            <div class="jadwal-group-title">
+                                                <i class="fas fa-book me-2"></i> {{ praktikum_group.grouper }}
+                                            </div>
+                                            <div class="row">
+                                                {% for jadwal in praktikum_group.list %}
+                                                    <div class="col-md-6 mb-2 jadwal-item-container" 
+                                                         data-praktikum-id="{{ jadwal.praktikum.id }}" 
+                                                         data-hari="{{ jadwal.hari }}">
+                                                        <div class="jadwal-item p-2 rounded">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" name="jadwal" value="{{ jadwal.id }}" 
+                                                                    id="jadwal_{{ jadwal.id }}" class="form-check-input jadwal-checkbox"
+                                                                    {% if jadwal in form.instance.jadwal.all %}checked{% endif %}>
+                                                                <label for="jadwal_{{ jadwal.id }}" class="form-check-label w-100">
+                                                                    <div class="jadwal-info">
+                                                                        <span class="jadwal-time">
+                                                                            {{ jadwal.get_hari_display }} ({{ jadwal.waktu_mulai|time:"H:i" }} - {{ jadwal.waktu_selesai|time:"H:i" }})
+                                                                        </span>
+                                                                        <span class="jadwal-details">
+                                                                            <i class="fas fa-map-marker-alt me-1"></i> {{ jadwal.ruangan }}
+                                                                        </span>
+                                                                        <span class="jadwal-dosen">
+                                                                            <i class="fas fa-user me-1"></i> {{ jadwal.dosen.get_full_name|default:jadwal.dosen.username }}
+                                                                        </span>
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i> Belum ada jadwal praktikum yang tersedia.
+                                </div>
+                            {% endif %}
+                            
+                            <small class="text-muted d-block mt-2">{{ form.jadwal.help_text }}</small>
+                            {% if form.jadwal.errors %}
+                                <div class="text-danger">{{ form.jadwal.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'labApp:mahasiswa_list' %}" class="btn btn-outline-secondary me-md-2">Batal</a>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight selected jadwal items
+        const jadwalCheckboxes = document.querySelectorAll('.jadwal-checkbox');
+        jadwalCheckboxes.forEach(checkbox => {
+            const jadwalItem = checkbox.closest('.jadwal-item');
+            if (checkbox.checked) {
+                jadwalItem.classList.add('selected');
+            }
+            
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    jadwalItem.classList.add('selected');
+                } else {
+                    jadwalItem.classList.remove('selected');
+                }
+            });
+        });
+        
+        // Filter functionality
+        const praktikumFilter = document.getElementById('praktikum-filter');
+        const hariFilter = document.getElementById('hari-filter');
+        const resetFilterBtn = document.getElementById('reset-filter');
+        
+        function applyFilters() {
+            const praktikumId = praktikumFilter.value;
+            const hari = hariFilter.value;
+            
+            const jadwalContainers = document.querySelectorAll('.jadwal-item-container');
+            const jadwalGroups = document.querySelectorAll('.jadwal-group');
+            
+            // Reset visibility
+            jadwalContainers.forEach(container => {
+                container.style.display = 'block';
+            });
+            
+            jadwalGroups.forEach(group => {
+                group.style.display = 'block';
+            });
+            
+            // Apply praktikum filter
+            if (praktikumId) {
+                jadwalGroups.forEach(group => {
+                    if (group.getAttribute('data-praktikum-id') !== praktikumId) {
+                        group.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Apply hari filter
+            if (hari) {
+                jadwalContainers.forEach(container => {
+                    if (container.getAttribute('data-hari') !== hari) {
+                        container.style.display = 'none';
+                    }
+                });
+                
+                // Hide empty groups
+                jadwalGroups.forEach(group => {
+                    const visibleContainers = group.querySelectorAll('.jadwal-item-container[style="display: block;"]');
+                    if (visibleContainers.length === 0) {
+                        group.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        praktikumFilter.addEventListener('change', applyFilters);
+        hariFilter.addEventListener('change', applyFilters);
+        
+        resetFilterBtn.addEventListener('click', function() {
+            praktikumFilter.value = '';
+            hariFilter.value = '';
+            applyFilters();
+        });
+    });
+</script>
+{% endblock %}

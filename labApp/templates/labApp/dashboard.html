@@ -1,0 +1,170 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Dashboard - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title">Selamat Datang, {{ user.get_full_name|default:user.username }}!</h2>
+                <p class="card-text text-muted">{{ user.role|title }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Jadwal Praktikum</h5>
+                <a href="{% url 'labApp:jadwal_list' %}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+            </div>
+            <div class="card-body">
+                {% if jadwal_list %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Praktikum</th>
+                                    <th>Hari</th>
+                                    <th>Waktu</th>
+                                    <th>Ruangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for jadwal in jadwal_list|slice:":5" %}
+                                <tr>
+                                    <td>{{ jadwal.praktikum }}</td>
+                                    <td>{{ jadwal.get_hari_display }}</td>
+                                    <td>{{ jadwal.waktu_mulai|time:"H:i" }} - {{ jadwal.waktu_selesai|time:"H:i" }}</td>
+                                    <td>{{ jadwal.ruangan }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Belum ada jadwal praktikum.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if user.is_asisten %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Laporan Kerusakan</h5>
+                <a href="{% url 'labApp:laporan_list' %}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+            </div>
+            <div class="card-body">
+                {% if laporan_list %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Perangkat</th>
+                                    <th>Ruangan</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for laporan in laporan_list|slice:":5" %}
+                                <tr>
+                                    <td>{{ laporan.perangkat }}</td>
+                                    <td>{{ laporan.ruangan }}</td>
+                                    <td>{{ laporan.tanggal_laporan|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if laporan.status == 'pending' %}
+                                            <span class="badge bg-warning">Menunggu</span>
+                                        {% elif laporan.status == 'proses' %}
+                                            <span class="badge bg-info">Diproses</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Selesai</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Belum ada laporan kerusakan.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.is_dosen %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Statistik</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="p-3 rounded bg-light">
+                            <h3 class="text-primary">{{ jadwal_list.count }}</h3>
+                            <p class="mb-0">Jadwal Praktikum</p>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 rounded bg-light">
+                            <h3 class="text-primary">{{ user.jadwal_dosen.all|length }}</h3>
+                            <p class="mb-0">Praktikum Aktif</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Akses Cepat</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'labApp:jadwal_list' %}" class="btn btn-outline-primary d-block py-3">
+                            <i class="fas fa-calendar-alt mb-2 d-block" style="font-size: 24px;"></i>
+                            Jadwal Praktikum
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'labApp:kehadiran_list' %}" class="btn btn-outline-primary d-block py-3">
+                            <i class="fas fa-clipboard-check mb-2 d-block" style="font-size: 24px;"></i>
+                            Kehadiran
+                        </a>
+                    </div>
+                    {% if user.is_asisten %}
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'labApp:laporan_list' %}" class="btn btn-outline-primary d-block py-3">
+                            <i class="fas fa-tools mb-2 d-block" style="font-size: 24px;"></i>
+                            Laporan Kerusakan
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if user.is_dosen %}
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'labApp:praktikum_list' %}" class="btn btn-outline-primary d-block py-3">
+                            <i class="fas fa-flask mb-2 d-block" style="font-size: 24px;"></i>
+                            Praktikum
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

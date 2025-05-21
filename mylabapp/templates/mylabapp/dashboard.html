@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar - Selalu terlihat -->
+        <aside class="fixed inset-y-0 left-0 w-64 bg-gray-300 text-black p-4 z-40">
+            <div class="mb-6">
+                <!-- Header sidebar tanpa tombol close -->
+            </div>
+            <nav class="space-y-4">
+                <a href="{% url 'mylabapp:dashboard' %}" class="flex items-center space-x-2 px-2 py-2 bg-white rounded hover:bg-gray-200 font-semibold shadow">
+                    <span>🏠</span><span>Home</span>
+                </a>
+                <a href="{% url 'mylabapp:data_praktikum' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>📋</span><span>Data Praktikum</span>
+                </a>
+                <a href="{% url 'mylabapp:inventaris' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🖊️</span><span>Perangkat &Inventaris</span>
+                </a>
+                <a href="{% url 'mylabapp:penanganan_kerusakan' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🛠️</span><span>Penanganan Kerusakan</span>
+                </a>
+                <a href="{% url 'mylabapp:laporan' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                    <span>🕒</span><span>Riwayat Perbaikan</span>
+                </a>
+                <a href="{% url 'mylabapp:logout' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-red-200 text-red-600 mt-6">
+                    <span>↩️</span><span>Keluar</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content - Selalu dengan margin kiri -->
+        <main class="flex-1 p-8 ml-64">
+            <!-- Header Atas -->
+            <div class="flex justify-between items-start mb-6">
+                <h1 class="text-2xl font-bold">Laboratory</h1>
+                <div class="flex items-center space-x-2 relative">
+                    <span class="text-sm font-semibold">Ada Notifikasi</span>
+                    <button id="notificationButton" class="relative" href="#">
+                        <span class="text-2xl">🔔</span>
+                        <!-- Badge untuk jumlah notifikasi yang belum dibaca -->
+                        <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    
+                    <!-- Panel Notifikasi (hidden by default) -->
+                    <div id="notificationPanel" class="absolute right-0 mt-10 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200 hidden">
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <h3 class="font-semibold">Notifikasi</h3>
+                            <div class="flex space-x-2">
+                                <button id="markAllRead" class="text-xs text-blue-600 hover:text-blue-800">
+                                    Tandai semua dibaca
+                                </button>
+                                <button id="closeNotifications">
+                                    <span class="text-lg">✕</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex border-b">
+                            <button id="tabAll" class="flex-1 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                                Semua
+                            </button>
+                            <button id="tabUnread" class="flex-1 py-2 text-sm font-medium text-gray-500">
+                                Belum Dibaca
+                            </button>
+                        </div>
+                        
+                        <!-- <div id="notificationList" class="max-h-80 overflow-y-auto"> -->
+                            {% for notif in notifikasi %}
+                            <div class="p-4 border-b hover:bg-gray-50 {% if not notif.dibaca %}bg-blue-50{% endif %}">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-sm font-medium {% if not notif.dibaca %}text-blue-600{% endif %}">
+                                            {% if not notif.dibaca %}
+                                            <a href="{% url 'mylabapp:mark_notification_read_and_redirect' pk=notif.pk %}" class="text-blue-600 hover:underline">
+                                                {{ notif.pesan }}
+                                            </a>
+                                            {% else %}
+                                            {{ notif.pesan }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ notif.tanggal|date:"d M Y H:i" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="p-4 text-center text-gray-500">
+                                <span class="block text-2xl mb-2">🔔</span>
+                                <p>Tidak ada notifikasi</p>
+                            </div>
+                            {% endfor %}
+                        <!-- </div> -->
+                        
+                        <div class="p-3 text-center border-t">
+                            <a href="{% url 'mylabapp:penanganan_kerusakan' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                                Lihat semua notifikasi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konten Utama -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Box Kiri (3 Kotak) -->
+                <div class="col-span-1 md:col-span-3 space-y-4">
+                    <div class="bg-gray-200 rounded-xl p-6 flex items-center space-x-4 shadow">
+                        <span class="text-4xl">👥</span>
+                        <div>
+                            <p class="text-sm">Jumlah Praktikum</p>
+                            <p class="text-2xl font-bold">{{ jumlah_praktikum }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-xl p-6 flex items-center space-x-4 shadow">
+                        <span class="text-4xl">📦</span>
+                        <div>
+                            <p class="text-sm">Jumlah Perangkat Inventaris</p>
+                            <p class="text-2xl font-bold">{{ jumlah_inventaris }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-xl p-6 flex items-center space-x-4 shadow">
+                        <span class="text-4xl">⚠️</span>
+                        <div>
+                            <p class="text-sm">Jumlah Kerusakan Ditangani</p>
+                            <p class="text-2xl font-bold">{{ jumlah_kerusakan_ditangani }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Riwayat Kerusakan -->
+                <div class="col-span-1 bg-gray-100 rounded-xl p-6 shadow h-full">
+                    <h2 class="text-xl font-semibold mb-4">Riwayat Kerusakan</h2>
+                    <div class="space-y-4">
+                        {% for kerusakan in riwayat_kerusakan %}
+                        <div class="flex items-start space-x-2">
+                            <span class="text-2xl">⚙️</span>
+                            <div class="text-sm">
+                                <p class="font-semibold">{{ kerusakan.nama_perangkat }}</p>
+                                <p class="text-gray-600">{{ kerusakan.ruangan }}</p>
+                                <p class="text-gray-500">{{ kerusakan.tanggal_laporan|date:"d M Y H:i" }}</p>
+                                <p class="text-{% if kerusakan.status == 'selesai' %}green{% elif kerusakan.status == 'pending' %}yellow{% else %}red{% endif %}-600">
+                                    {{ kerusakan.get_status_display }}
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-gray-500">
+                            <p>Tidak ada riwayat kerusakan</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jadwal Praktikum -->
+            <div class="mt-10 bg-white p-6 rounded-xl shadow">
+                <h2 class="text-xl font-semibold mb-4">Jadwal Praktikum Mingguan</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left border border-gray-300">
+                        <thead class="bg-gray-200 text-gray-700">
+                            <tr>
+                                <th class="py-2 px-4 border">Hari</th>
+                                <th class="py-2 px-4 border">Kelas</th>
+                                <th class="py-2 px-4 border">Jam</th>
+                                <th class="py-2 px-4 border">Materi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for jadwal in jadwal_list %}
+                            <tr class="hover:bg-gray-100">
+                                <td class="py-2 px-4 border">{{ jadwal.get_hari_display }}</td>
+                                <td class="py-2 px-4 border">{{ jadwal.ruangan }}</td>
+                                <td class="py-2 px-4 border">{{ jadwal.waktu_mulai|time:"H:i" }} - {{ jadwal.waktu_selesai|time:"H:i" }}</td>
+                                <td class="py-2 px-4 border">{{ jadwal.praktikum.nama }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="py-2 px-4 border text-center">Tidak ada jadwal praktikum</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification untuk notifikasi baru -->
+    <div id="toastNotification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border-l-4 border-blue-500 p-4 w-80 transform transition-all duration-300 translate-x-full opacity-0">
+        <div class="flex justify-between items-start">
+            <div class="flex items-center">
+                <span class="text-blue-500 mr-2">🔔</span>
+                <h3 id="toastTitle" class="font-semibold text-sm">Notifikasi Baru</h3>
+            </div>
+            <button id="closeToast">
+                <span class="text-lg">✕</span>
+            </button>
+        </div>
+        <p id="toastMessage" class="text-sm mt-1 text-gray-600"></p>
+    </div>
+
+    <script>
+        // Data notifikasi (kosong)
+        let notifications = [];
+        let activeTab = 'all'; // 'all' atau 'unread'
+        let unreadCount = 0;
+
+        // Elemen DOM
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const notificationList = document.getElementById('notificationList');
+        const tabAll = document.getElementById('tabAll');
+        const tabUnread = document.getElementById('tabUnread');
+        const markAllRead = document.getElementById('markAllRead');
+        const closeNotifications = document.getElementById('closeNotifications');
+        const toastNotification = document.getElementById('toastNotification');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+        const closeToast = document.getElementById('closeToast');
+        const jumlahKerusakan = document.getElementById('jumlahKerusakan');
+        const riwayatKerusakan = document.getElementById('riwayatKerusakan');
+
+        // Fungsi untuk memformat waktu
+        function formatTime(date) {
+            const now = new Date();
+            const diffMs = now.getTime() - date.getTime();
+            const diffMins = Math.round(diffMs / 60000);
+
+            if (diffMins < 60) {
+                return `${diffMins} menit yang lalu`;
+            } else if (diffMins < 1440) {
+                return `${Math.floor(diffMins / 60)} jam yang lalu`;
+            } else {
+                return `${Math.floor(diffMins / 1440)} hari yang lalu`;
+            }
+        }
+
+        // Fungsi untuk merender notifikasi
+        function renderNotifications() {
+            let filteredNotifications = activeTab === 'all' 
+                ? notifications 
+                : notifications.filter(n => !n.read);
+            
+            // Selalu tampilkan pesan "Tidak ada notifikasi"
+            notificationList.innerHTML = `
+                <div class="p-4 text-center text-gray-500">
+                    <span class="block text-2xl mb-2">🔔</span>
+                    <p>Tidak ada notifikasi</p>
+                </div>
+            `;
+        }
+
+        // Fungsi untuk menandai notifikasi sebagai telah dibaca
+        function markAsRead(id) {
+            const index = notifications.findIndex(n => n.id === id);
+            if (index !== -1) {
+                notifications[index].read = true;
+                updateUnreadCount();
+                renderNotifications();
+            }
+        }
+
+        // Fungsi untuk menandai semua notifikasi sebagai telah dibaca
+        function markAllAsRead() {
+            notifications.forEach(n => n.read = true);
+            updateUnreadCount();
+            renderNotifications();
+        }
+
+        // Fungsi untuk memperbarui jumlah notifikasi yang belum dibaca
+        function updateUnreadCount() {
+            unreadCount = notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.classList.remove('hidden');
+            } else {
+                notificationBadge.classList.add('hidden');
+            }
+        }
+
+        // Fungsi untuk menampilkan toast notification
+        function showToast(title, message) {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastNotification.classList.remove('translate-x-full', 'opacity-0');
+            
+            // Otomatis menutup toast setelah 5 detik
+            setTimeout(() => {
+                closeToastNotification();
+            }, 5000);
+        }
+
+        // Fungsi untuk menutup toast notification
+        function closeToastNotification() {
+            toastNotification.classList.add('translate-x-full', 'opacity-0');
+        }
+
+        // Fungsi untuk mengambil notifikasi dari server
+        function fetchNotifications() {
+            // Kosongkan data notifikasi
+            notifications = [];
+            updateUnreadCount();
+            renderNotifications();
+            
+            // Update jumlah kerusakan ditangani
+            jumlahKerusakan.textContent = "0";
+            
+            // Update riwayat kerusakan dengan tampilan kosong
+            riwayatKerusakan.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <span class="text-2xl">⚙️</span>
+                    <div class="text-sm">
+                        <p>Belum ada kerusakan</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Event listeners
+        notificationButton.addEventListener('click', function() {
+            notificationPanel.classList.toggle('hidden');
+        });
+
+        closeNotifications.addEventListener('click', function() {
+            notificationPanel.classList.add('hidden');
+        });
+
+        tabAll.addEventListener('click', function() {
+            activeTab = 'all';
+            tabAll.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabAll.classList.remove('text-gray-500');
+            tabUnread.classList.add('text-gray-500');
+            tabUnread.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            renderNotifications();
+        });
+
+        tabUnread.addEventListener('click', function() {
+            activeTab = 'unread';
+            tabUnread.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabUnread.classList.remove('text-gray-500');
+            tabAll.classList.add('text-gray-500');
+            tabAll.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            renderNotifications();
+        });
+
+        markAllRead.addEventListener('click', markAllAsRead);
+        closeToast.addEventListener('click', closeToastNotification);
+
+        // Klik di luar panel notifikasi untuk menutupnya
+        document.addEventListener('click', function(event) {
+            if (!notificationPanel.contains(event.target) && 
+                !notificationButton.contains(event.target) && 
+                !notificationPanel.classList.contains('hidden')) {
+                notificationPanel.classList.add('hidden');
+            }
+        });
+
+        // Inisialisasi
+        fetchNotifications();
+        
+        // Polling untuk notifikasi baru setiap 30 detik
+        setInterval(fetchNotifications, 30000);
+    </script>
+
+</body>
+</html>

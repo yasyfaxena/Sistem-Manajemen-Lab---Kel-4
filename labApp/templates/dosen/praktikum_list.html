@@ -1,0 +1,53 @@
+{% extends 'labApp/base.html' %}
+
+{% block title %}Daftar Praktikum - Manajemen Laboratorium{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Daftar Praktikum</h4>
+        <a href="{% url 'labApp:praktikum_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Tambah Praktikum
+        </a>
+    </div>
+    <div class="card-body">
+        {% if praktikum_list %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Nama</th>
+                            <th>Deskripsi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for praktikum in praktikum_list %}
+                            <tr>
+                                <td>{{ praktikum.kode }}</td>
+                                <td>{{ praktikum.nama }}</td>
+                                <td>{{ praktikum.deskripsi|truncatechars:50 }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'labApp:praktikum_update' praktikum.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'labApp:praktikum_delete' praktikum.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Belum ada praktikum yang ditambahkan.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

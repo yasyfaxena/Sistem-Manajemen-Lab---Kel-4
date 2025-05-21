@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Penanganan Kerusakan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-300 text-black p-4">
+      
+        <nav class="space-y-4">
+            <a href="{% url 'mylabapp:dashboard' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                <span>🏠</span><span>Home</span>
+            </a>
+            <a href="{% url 'mylabapp:data_praktikum' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                <span>📋</span><span>Data Praktikum</span>
+            </a>
+            <a href="{% url 'mylabapp:inventaris' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                <span>🖊️</span><span>Perangkat &Inventaris</span>
+            </a>
+            <a href="{% url 'mylabapp:penanganan_kerusakan' %}" class="flex items-center space-x-2 px-2 py-2 bg-white rounded font-semibold shadow">
+                <span>🛠️</span><span>Penanganan Kerusakan</span>
+            </a>
+            <a href="{% url 'mylabapp:laporan' %}" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-gray-200">
+                <span>🕒</span><span>Riwayat Perbaikan</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 px-2 py-2 rounded hover:bg-red-200 text-red-600 mt-6">
+                <span>↩️</span><span>Keluar</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold mb-4">Penanganan Kerusakan</h1>
+
+        <!-- Table -->
+        <div class="bg-white shadow rounded overflow-auto">
+            <table class="min-w-full text-left">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2">No</th>
+                        <th class="px-4 py-2">Perangkat</th>
+                        <th class="px-4 py-2">Deskripsi</th>
+                        <th class="px-4 py-2">Tanggal Laporan</th>
+                        <th class="px-4 py-2">Status</th>
+                        <th class="px-4 py-2">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kerusakan in data %}
+                    <tr class="border-t">
+                        <td class="px-4 py-2">{{ forloop.counter }}</td>
+                        <td class="px-4 py-2">{{ kerusakan.nama_perangkat }}</td>
+                        <td class="px-4 py-2">{{ kerusakan.deskripsi }}</td>
+                        <td class="px-4 py-2">{{ kerusakan.tanggal_laporan|date:"d/m/Y H:i" }}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 rounded text-sm
+                                {% if kerusakan.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif kerusakan.status == 'selesai' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ kerusakan.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 space-x-2">
+                            {% if kerusakan.status == 'pending' %}
+                            <a href="{% url 'mylabapp:kerusakan_selesai' kerusakan.id %}" class="text-green-500">✅</a>
+                            <a href="{% url 'mylabapp:kerusakan_batal' kerusakan.id %}" class="text-red-500">❌</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-4 py-2 text-center">Tidak ada data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

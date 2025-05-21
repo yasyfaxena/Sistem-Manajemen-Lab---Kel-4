@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Register</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .register-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .register-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .register-container input[type="text"],
+        .register-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .register-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #5cb85c; /* Green color */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .register-container button:hover {
+            background-color: #4cae4c;
+        }
+        .register-container .errorlist li {
+            color: red;
+            list-style: none;
+            padding: 0;
+            margin: 0 0 10px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Admin Register</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+        <p>Sudah punya akun? <a href="{% url 'mylabapp:login' %}">Login di sini</a></p>
+    </div>
+</body>
+</html> 
